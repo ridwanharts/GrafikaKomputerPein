@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, Spin, Buttons, types, Windows; //Windows untuk menggunakan GetKeyState()
+  StdCtrls, ComCtrls, Spin, Buttons, types, FPCanvas, Windows; //Windows untuk menggunakan GetKeyState()
 
 type
 
@@ -59,7 +59,7 @@ type
     procedure rkananClick(Sender: TObject);
     procedure rkiriClick(Sender: TObject);
     procedure sbPPanjangClick(Sender: TObject);
-    procedure spinGarisChange(APolygon: array of TPoint);
+    procedure spinGarisChange(Sender: TObject);
     procedure zoominClick(APolygon: array of TPoint);
     procedure ColorButton1ColorChanged(Sender: TObject);
     procedure ColorButton2ColorChanged(Sender: TObject);
@@ -89,6 +89,8 @@ type
 var
   Form1: TForm1;
   APolygon, temporaryPolygon: array of TPoint;
+  bmp: TBitmap;
+  temporaryRect, ARect: TRect;
   obj:array[1..25] of elemen;
   npoints, s, i, k, n, titik, xmid, ymid:integer;
   d, r,skala,totalx, totaly:real;
@@ -108,6 +110,8 @@ begin
   statusGambar:=false;
   statusGeser:=false;
   namaBangun:='';
+  temporaryRect := TRect.Create(10,10,150,150);
+  ARect := TRect.Create(10,10,150,150);
 end;
 
 procedure TForm1.Image1Click(Sender: TObject);
@@ -124,6 +128,8 @@ procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
 begin
   xawal:=X;
   yawal:=Y;
+  Image1.Canvas.CopyMode := cmWhiteness;
+  temporaryRect := TRect.create(0, 0, Image1.Width, Image1.Height);
   statusTahan:=true;
   if(IsPointInPolygon(X,Y,APolygon)) and (statusGambar=false) then
   begin
@@ -263,9 +269,29 @@ begin
     begin
       if GetKeyState(VK_SHIFT)>=0 then
             begin
-              APolygon[0] := Types.Point(xawal, yawal);
-              APolygon[1] := Types.Point(xakhir, yakhir);
-              APolygon[2] := Types.Point(xakhir-(2*(xakhir-xawal)), yakhir);;
+              if(xawal<xakhir) then
+              begin
+                xmin:=xawal;
+                xmax:=xakhir;
+              end
+              else
+              begin
+                xmin:=xakhir;
+                xmax:=xawal;
+              end;
+              if(yawal<yakhir) then
+              begin
+                ymin:=yawal;
+                ymax:=yakhir;
+              end
+              else
+              begin
+                ymin:=yakhir;
+                ymax:=yawal;
+              end;
+              APolygon[0] := Types.Point(round((xawal+xakhir)/2), ymin);
+              APolygon[1] := Types.Point(xmin, ymax);
+              APolygon[2] := Types.Point(xmax, ymax);;
             end
             else
             begin
@@ -352,30 +378,30 @@ begin
               if (xakhir<xawal) and (yakhir<yawal) then
               begin
                 editdlm.Text:='xakhir<xawal yakhir<yawal';
-                APolygon[0] := Types.Point(xawal-min, yawal);
-                APolygon[1] := Types.Point(xawal-round(min/2), yawal-min);
-                APolygon[2] := Types.Point(xawal, yawal);
+                APolygon[0] := Types.Point(xawal, yawal);
+                APolygon[1] := Types.Point(xawal-min, yawal);
+                APolygon[2] := Types.Point(xawal-min, yawal-min);
               end
               else if (xakhir>xawal) and (yakhir<yawal) then
               begin
                 editdlm.Text:='xakhir>xawal yakhir<yawal';
-                APolygon[0] := Types.Point(xawal+min, yawal);
-                APolygon[1] := Types.Point(xawal+round(min/2), yawal-min);
-                APolygon[2] := Types.Point(xawal, yawal);
+                APolygon[0] := Types.Point(xawal, yawal);
+                APolygon[1] := Types.Point(xawal, yawal-min);
+                APolygon[2] := Types.Point(xawal+min, yawal);
               end
               else if (xakhir<xawal) and (yakhir>yawal) then
               begin
                 editdlm.Text:='xakhir<xawal yakhir>yawal';
-                APolygon[0] := Types.Point(xawal-min, yawal+min);
-                APolygon[1] := Types.Point(xawal-round(min/2), yawal);
+                APolygon[0] := Types.Point(xawal-min, yawal);
+                APolygon[1] := Types.Point(xawal-min, yawal+min);
                 APolygon[2] := Types.Point(xawal, yawal+min);
               end
               else if (xakhir>xawal) and (yakhir>yawal) then
               begin
                 editdlm.Text:='xakhir>xawal yakhir>yawal';
-                APolygon[0] := Types.Point(xawal+min, yawal+min);
-                APolygon[1] := Types.Point(xawal+round(min/2), yawal);
-                APolygon[2] := Types.Point(xawal, yawal+min);
+                APolygon[0] := Types.Point(xawal, yawal);
+                APolygon[1] := Types.Point(xawal, yawal+min);
+                APolygon[2] := Types.Point(xawal+min, yawal+min);
               end;
             end;
     end;
@@ -391,7 +417,7 @@ begin
   end;
 end;
 
-procedure TForm1.spinGarisChange(APolygon: array of TPoint);
+procedure TForm1.spinGarisChange(Sender: TObject);
 begin
   Reset;
   Gambar(APolygon);
@@ -415,7 +441,6 @@ begin
   if(statusGeser) then
   begin
     APolygon:=temporaryPolygon;
-    reset;
     Gambar(APolygon);
     statusGeser:=false;
   end;
@@ -451,7 +476,6 @@ begin
          APolygon[i].x:=APolygon[i].x+xmid;
          APolygon[i].y:=APolygon[i].y+ymid;
     end;
-  Reset;
   Gambar(TemporaryPolygon); //digambar Temporary karena koordinat hasil rotasi merupakan pembulatan
 end;
 
@@ -484,7 +508,6 @@ begin
          APolygon[i].x:=APolygon[i].x+xmid;
          APolygon[i].y:=APolygon[i].y+ymid;
     end;
-  Reset;
   Gambar(APolygon);
 end;
 
@@ -568,7 +591,6 @@ end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
 begin
-  Reset;
   Gambar(APolygon);
 end;
 
@@ -638,14 +660,15 @@ end;
 
 procedure TForm1.TemporaryGambar(temporaryPolygon: array of TPoint);
 begin
-    Reset;
     Image1.Canvas.Pen.Style:=psDash;
     Image1.Canvas.Pen.Color:=clblack;
     Image1.Canvas.Pen.Width:=1;
     Image1.Canvas.Brush.Color:=TColor($FFFFFF);
     if(namaBangun<>'') then
     begin
-       Image1.Canvas.Polygon(temporaryPolygon);
+      Image1.Canvas.CopyRect(temporaryRect,Image1.Canvas,ARect);
+      Image1.Canvas.Polygon(temporaryPolygon);
+      Frame;
     end;
 end;
 

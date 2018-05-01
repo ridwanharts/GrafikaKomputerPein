@@ -215,24 +215,169 @@ begin
       end
       else
       begin
-        dx:=xakhir-xawal;
-        dy:=yakhir-yawal;
-        if(abs(dx)>abs(dy)) then
+        dx:=abs(xakhir-xawal);
+        dy:=abs(yakhir-yawal);
+        if(dx<dy) then
         begin
-          max:=dx;
+          min:=dx;
         end
         else
         begin
-          max:=dy;
+          min:=dy;
         end;
-        APolygon[0] := Types.Point(xawal, yawal);
-        APolygon[1] := Types.Point(xawal+max, yawal);
-        APolygon[2] := Types.Point(xawal+max, yawal+max);
-        APolygon[3] := Types.Point(xawal, yawal+max);
+        if (xakhir<xawal) and (yakhir<yawal) then
+        begin
+          editdlm.Text:='xakhir<xawal yakhir<yawal';
+          APolygon[0] := Types.Point(xawal, yawal);
+          APolygon[1] := Types.Point(xawal, yawal-min);
+          APolygon[2] := Types.Point(xawal-min, yawal-min);
+          APolygon[3] := Types.Point(xawal-min, yawal);
+        end
+        else if (xakhir>xawal) and (yakhir<yawal) then
+        begin
+          editdlm.Text:='xakhir>xawal yakhir<yawal';
+          APolygon[0] := Types.Point(xawal, yawal);
+          APolygon[1] := Types.Point(xawal, yawal-min);
+          APolygon[2] := Types.Point(xawal+min, yawal-min);
+          APolygon[3] := Types.Point(xawal+min, yawal);
+        end
+        else if (xakhir<xawal) and (yakhir>yawal) then
+        begin
+          editdlm.Text:='xakhir<xawal yakhir>yawal';
+          APolygon[0] := Types.Point(xawal, yawal);
+          APolygon[1] := Types.Point(xawal, yawal+min);
+          APolygon[2] := Types.Point(xawal-min, yawal+min);
+          APolygon[3] := Types.Point(xawal-min, yawal);
+        end
+        else if (xakhir>xawal) and (yakhir>yawal) then
+        begin
+          editdlm.Text:='xakhir>xawal yakhir>yawal';
+          APolygon[0] := Types.Point(xawal, yawal);
+          APolygon[1] := Types.Point(xawal, yawal+min);
+          APolygon[2] := Types.Point(xawal+min, yawal+min);
+          APolygon[3] := Types.Point(xawal+min, yawal);
+        end;
       end;
     end
     else if(namaBangun='Segitiga Sama') then
     begin
+      if GetKeyState(VK_SHIFT)>=0 then
+            begin
+              APolygon[0] := Types.Point(xawal, yawal);
+              APolygon[1] := Types.Point(xakhir, yakhir);
+              APolygon[2] := Types.Point(xakhir-(2*(xakhir-xawal)), yakhir);;
+            end
+            else
+            begin
+              dx:=abs(xakhir-xawal);
+              dy:=abs(yakhir-yawal);
+              if(dx<dy) then
+              begin
+                min:=dx;
+              end
+              else
+              begin
+                min:=dy;
+              end;
+              if (xakhir<xawal) and (yakhir<yawal) then
+              begin
+                editdlm.Text:='xakhir<xawal yakhir<yawal';
+                APolygon[0] := Types.Point(xawal-min, yawal);
+                APolygon[1] := Types.Point(xawal-round(min/2), yawal-min);
+                APolygon[2] := Types.Point(xawal, yawal);
+              end
+              else if (xakhir>xawal) and (yakhir<yawal) then
+              begin
+                editdlm.Text:='xakhir>xawal yakhir<yawal';
+                APolygon[0] := Types.Point(xawal+min, yawal);
+                APolygon[1] := Types.Point(xawal+round(min/2), yawal-min);
+                APolygon[2] := Types.Point(xawal, yawal);
+              end
+              else if (xakhir<xawal) and (yakhir>yawal) then
+              begin
+                editdlm.Text:='xakhir<xawal yakhir>yawal';
+                APolygon[0] := Types.Point(xawal-min, yawal+min);
+                APolygon[1] := Types.Point(xawal-round(min/2), yawal);
+                APolygon[2] := Types.Point(xawal, yawal+min);
+              end
+              else if (xakhir>xawal) and (yakhir>yawal) then
+              begin
+                editdlm.Text:='xakhir>xawal yakhir>yawal';
+                APolygon[0] := Types.Point(xawal+min, yawal+min);
+                APolygon[1] := Types.Point(xawal+round(min/2), yawal);
+                APolygon[2] := Types.Point(xawal, yawal+min);
+              end;
+            end;
+    end
+    else if(namaBangun='Segitiga Siku') then
+    begin
+      if GetKeyState(VK_SHIFT)>=0 then
+            begin
+              if xakhir < xawal then
+              begin
+                xmin:=xakhir;
+                xmax:=xawal;
+              end
+              else
+              begin
+                xmin:=xawal;
+                xmax:=xakhir;
+              end;
+              if yakhir < yawal then
+              begin
+                ymin:=yakhir;
+                ymax:=yawal;
+              end
+              else
+              begin
+                ymin:=yawal;
+                ymax:=yakhir;
+              end;
+              APolygon[0] := Types.Point(xmin, ymin);
+              APolygon[1] := Types.Point(xmin, ymax);
+              APolygon[2] := Types.Point(xmax, ymax);;
+            end
+            else
+            begin
+              dx:=abs(xakhir-xawal);
+              dy:=abs(yakhir-yawal);
+              if(dx<dy) then
+              begin
+                min:=dx;
+              end
+              else
+              begin
+                min:=dy;
+              end;
+              if (xakhir<xawal) and (yakhir<yawal) then
+              begin
+                editdlm.Text:='xakhir<xawal yakhir<yawal';
+                APolygon[0] := Types.Point(xawal-min, yawal);
+                APolygon[1] := Types.Point(xawal-round(min/2), yawal-min);
+                APolygon[2] := Types.Point(xawal, yawal);
+              end
+              else if (xakhir>xawal) and (yakhir<yawal) then
+              begin
+                editdlm.Text:='xakhir>xawal yakhir<yawal';
+                APolygon[0] := Types.Point(xawal+min, yawal);
+                APolygon[1] := Types.Point(xawal+round(min/2), yawal-min);
+                APolygon[2] := Types.Point(xawal, yawal);
+              end
+              else if (xakhir<xawal) and (yakhir>yawal) then
+              begin
+                editdlm.Text:='xakhir<xawal yakhir>yawal';
+                APolygon[0] := Types.Point(xawal-min, yawal+min);
+                APolygon[1] := Types.Point(xawal-round(min/2), yawal);
+                APolygon[2] := Types.Point(xawal, yawal+min);
+              end
+              else if (xakhir>xawal) and (yakhir>yawal) then
+              begin
+                editdlm.Text:='xakhir>xawal yakhir>yawal';
+                APolygon[0] := Types.Point(xawal+min, yawal+min);
+                APolygon[1] := Types.Point(xawal+round(min/2), yawal);
+                APolygon[2] := Types.Point(xawal, yawal+min);
+              end;
+            end;
     end;
     TemporaryGambar(APolygon);
   end;
